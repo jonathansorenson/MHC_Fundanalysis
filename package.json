@@ -1,0 +1,42 @@
+{
+  "name": "mhc-dashboard",
+  "version": "0.1.0",
+  "description": "MHC Fund-Level CRE Dashboard — NAI Merin Hunter Codman",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "server": "node server/index.js",
+    "dev:full": "concurrently \"npm run server\" \"npm run dev\""
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "cors": "^2.8.6",
+    "date-fns": "^3.6.0",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "jspdf": "^4.2.0",
+    "lucide-react": "^0.263.1",
+    "marked": "^17.0.3",
+    "multer": "^1.4.5-lts.1",
+    "papaparse": "^5.4.1",
+    "pdf-parse": "^1.1.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^2.12.7",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.2.1",
+    "postcss": "^8.4.41",
+    "tailwindcss": "^3.4.10",
+    "vite": "^5.4.2"
+  }
+}
