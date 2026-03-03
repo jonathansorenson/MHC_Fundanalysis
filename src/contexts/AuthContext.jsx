@@ -3,46 +3,47 @@ import { supabase, isConnected } from '../lib/supabase';
 
 const AuthContext = createContext(null);
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3333';
-
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [user, setUser] = useState(null);
   const [role, setRole] = useState('read');
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = useCallback(async (token) => {
+  const fetchProfile = useCallback(async (authUser) => {
+    if (!authUser || !isConnected()) return;
     try {
-      const res = await fetch(`${API_BASE}/api/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const profile = await res.json();
-        setRole(profile.role || 'read');
-        setUser(profile);
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('role, display_name, email')
+        .eq('id', authUser.id)
+        .single();
+      if (!error && data) {
+        setRole(data.role || 'read');
+        setUser({ email: data.email || authUser.email, display_name: data.display_name, role: data.role || 'read' });
+      } else {
+        setUser({ email: authUser.email, role: 'read' });
       }
-    } catch { /* fallback to 'read' */ }
+    } catch {
+      setUser({ email: authUser.email, role: 'read' });
+    }
   }, []);
 
   useEffect(() => {
     if (!isConnected()) {
-      // Demo mode — no Supabase configured
-      setSession({ demo: true });
-      setUser({ email: 'demo@mhc.com', role: 'admin' });
-      setRole('admin');
+      // No Supabase configured — stay on login screen
       setLoading(false);
       return;
     }
 
     supabase.auth.getSession().then(({ data: { session: s } }) => {
       setSession(s);
-      if (s?.access_token) fetchProfile(s.access_token);
+      if (s?.user) fetchProfile(s.user);
       setLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
-      if (s?.access_token) fetchProfile(s.access_token);
+      if (s?.user) fetchProfile(s.user);
       else { setUser(null); setRole('read'); }
     });
 
