@@ -13,13 +13,13 @@ export function AuthProvider({ children }) {
     if (!authUser || !isConnected()) return;
     try {
       const { data, error } = await supabase
-        .from('user_profiles')
-        .select('role, display_name, email')
-        .eq('id', authUser.id)
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', authUser.id)
         .single();
       if (!error && data) {
         setRole(data.role || 'read');
-        setUser({ email: data.email || authUser.email, display_name: data.display_name, role: data.role || 'read' });
+        setUser({ email: authUser.email, role: data.role || 'read' });
       } else {
         setUser({ email: authUser.email, role: 'read' });
       }

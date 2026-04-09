@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3333';
+const API_BASE = import.meta.env.VITE_API_URL || '';
 
 export default function AskAIPanel({ open, onClose }) {
   const [messages, setMessages] = useState([]);

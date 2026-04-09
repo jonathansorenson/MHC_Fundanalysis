@@ -1,4 +1,5 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+dotenv.config({ override: true });
 import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
@@ -14,7 +15,8 @@ import { BUDGET_PROMPT } from './prompts/budget.js';
 const app = express();
 const PORT = process.env.PORT || 3333;
 
-app.use(cors());
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'];
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
 
 // ── Multer (25 MB limit) ────────────────────────────────────
@@ -36,7 +38,7 @@ if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
 async function extractWithClaude(systemPrompt, content) {
   if (!claude) throw new Error('ANTHROPIC_API_KEY not configured');
   const response = await claude.messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model: process.env.CLAUDE_MODEL || 'claude-sonnet-4-20250514',
     max_tokens: 4096,
     system: systemPrompt,
     messages: [{ role: 'user', content }],
@@ -145,7 +147,7 @@ Be concise but accurate. Reference specific numbers when available.`;
     ];
 
     const response = await claude.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: process.env.CLAUDE_MODEL || 'claude-sonnet-4-20250514',
       max_tokens: 2048,
       system: systemPrompt,
       messages,
@@ -253,9 +255,13 @@ app.delete('/api/admin/users/:id', async (req, res) => {
   }
 });
 
-// ── Start server ────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(`\n  MHC Dashboard API running on http://localhost:${PORT}`);
-  console.log(`  Anthropic: ${claude ? '✓ Connected' : '✗ Not configured'}`);
-  console.log(`  Supabase:  ${supabaseAdmin ? '✓ Connected' : '✗ Not configured'}\n`);
-});
+// ── Start server (only when running directly, not as Vercel serverless) ──
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log(`\n  MHC Dashboard API running on http://localhost:${PORT}`);
+    console.log(`  Anthropic: ${claude ? '✓ Connected' : '✗ Not configured'}`);
+    console.log(`  Supabase:  ${supabaseAdmin ? '✓ Connected' : '✗ Not configured'}\n`);
+  });
+}
+
+export default app;
