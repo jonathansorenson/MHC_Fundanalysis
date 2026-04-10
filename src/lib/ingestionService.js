@@ -2,11 +2,11 @@ const API_BASE = import.meta.env.VITE_API_URL || '';
 
 export async function checkApiKeyStatus() {
   try {
-    const res = await fetch(`${API_BASE}/api/health`);
+    const res = await fetch(`${API_BASE}/api/status`);
     const data = await res.json();
-    return { ok: data.apiKeyConfigured, message: data.message };
+    return { status: data.status };
   } catch {
-    return { ok: false, message: 'API server not reachable' };
+    return { status: 'error' };
   }
 }
 

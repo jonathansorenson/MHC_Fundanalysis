@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { extractManagementReport, extractRentRoll, extractBudget, checkApiKeyStatus } from '../lib/ingestionService';
 
 const ZONES = [
@@ -81,7 +81,7 @@ function DropZone({ zone, apiOk }) {
 export default function DataUpload() {
   const [apiStatus, setApiStatus] = useState(null);
 
-  useState(() => {
+  useEffect(() => {
     checkApiKeyStatus().then(s => setApiStatus(s)).catch(() => setApiStatus({ status: 'error' }));
   }, []);
 
